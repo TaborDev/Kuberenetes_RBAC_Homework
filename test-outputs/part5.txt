@@ -1,0 +1,20 @@
+==== Part 5: Gatekeeper (label enforcement) and automation SA testing ====
+serviceaccount/automation-sa unchanged
+clusterrole.rbac.authorization.k8s.io/automation-pod-manager configured
+clusterrolebinding.rbac.authorization.k8s.io/automation-pod-manager-binding unchanged
+Applying Gatekeeper ConstraintTemplate and Constraint (may fail if Gatekeeper not installed)
+error: resource mapping not found for name: "k8srequiredlabels" namespace: "" from "/Users/taweraradomkidanu/kubernetes-rbac-homework/yaml/gatekeeper-pod-label-constrainttemplate.yaml": no matches for kind "ConstraintTemplate" in version "templates.gatekeeper.sh/v1"
+ensure CRDs are installed first
+error: resource mapping not found for name: "pods-must-have-managed-by-automation" namespace: "" from "/Users/taweraradomkidanu/kubernetes-rbac-homework/yaml/gatekeeper-pod-label-constraint.yaml": no matches for kind "K8sRequiredLabels" in version "constraints.gatekeeper.sh/v1"
+ensure CRDs are installed first
+
+==== Try creating pod without label as automation-sa (expected: denied by Gatekeeper if installed) ====
+pod/pod-no-label created
+
+==== Try creating pod with label as automation-sa (expected: allowed) ====
+pod/pod-with-label created
+
+==== Cleanup Part 5 test pods ====
+pod "pod-no-label" deleted from default namespace
+pod "pod-with-label" deleted from default namespace
+

@@ -1,0 +1,49 @@
+==== Part 3: Log collector cluster-wide read ====
+serviceaccount/log-collector unchanged
+clusterrole.rbac.authorization.k8s.io/log-reader unchanged
+clusterrolebinding.rbac.authorization.k8s.io/log-collector-binding unchanged
+pod/log-collector-test-pod created
+pod/log-collector-test-pod condition met
+
+==== Part 3: Inside log-collector pod: list pods across ns and list nodes (expected: allowed) ====
+NAMESPACE               NAME                                                        READY   STATUS    RESTARTS         AGE
+default                 flask-deployment-57548f4958-df52q                           1/1     Running   40 (37m ago)     9d
+default                 flask-deployment-57548f4958-fjt5d                           1/1     Running   43 (37m ago)     9d
+default                 log-collector-test-pod                                      1/1     Running   0                1s
+kube-prometheus-stack   alertmanager-kube-prometheus-stack-alertmanager-0           2/2     Running   7 (37m ago)      9d
+kube-prometheus-stack   kube-prometheus-stack-grafana-77db57c8f7-sllqj              3/3     Running   4 (37m ago)      9d
+kube-prometheus-stack   kube-prometheus-stack-kube-state-metrics-55cb9c8889-9hmtl   1/1     Running   92 (37m ago)     9d
+kube-prometheus-stack   kube-prometheus-stack-operator-5879c9f548-kw8zz             1/1     Running   102 (37m ago)    9d
+kube-prometheus-stack   kube-prometheus-stack-prometheus-node-exporter-5rprx        1/1     Running   229 (37m ago)    35d
+kube-prometheus-stack   prometheus-kube-prometheus-stack-prometheus-0               2/2     Running   22 (37m ago)     9d
+kube-system             coredns-66bc5c9577-d7z9p                                    1/1     Running   9 (37m ago)      9d
+kube-system             etcd-minikube                                               1/1     Running   6 (37m ago)      52d
+kube-system             kube-apiserver-minikube                                     1/1     Running   87 (37m ago)     52d
+kube-system             kube-controller-manager-minikube                            1/1     Running   50 (37m ago)     52d
+kube-system             kube-proxy-l2pqv                                            1/1     Running   3 (37m ago)      52d
+kube-system             kube-scheduler-minikube                                     1/1     Running   24 (37m ago)     52d
+kube-system             metrics-server-85b7d694d7-d7l6z                             1/1     Running   111 (37m ago)    9d
+kube-system             storage-provisioner                                         1/1     Running   0                37m
+monitoring              alertmanager-kps-kube-prometheus-stack-alertmanager-0       2/2     Running   5 (37m ago)      9d
+monitoring              kps-grafana-5d4c9f86bc-4qkvl                                3/3     Running   4 (37m ago)      9d
+monitoring              kps-kube-prometheus-stack-operator-789b6b66dd-cqfw8         1/1     Running   104 (37m ago)    9d
+monitoring              kps-kube-state-metrics-7ddb65b7bc-rzc7v                     1/1     Running   91 (37m ago)     9d
+monitoring              kps-prometheus-node-exporter-8snrm                          0/1     Pending   0                32d
+monitoring              prometheus-kps-kube-prometheus-stack-prometheus-0           2/2     Running   20 (37m ago)     9d
+techcommerce-staging    frontend-74c7b5897-67prk                                    1/1     Running   38 (37m ago)     9d
+techcommerce-staging    frontend-74c7b5897-zhbmc                                    1/1     Running   37 (7d21h ago)   9d
+techcommerce-staging    order-api-7886c6b46d-95dkp                                  1/1     Running   38 (37m ago)     9d
+techcommerce-staging    order-api-7886c6b46d-zlnlg                                  1/1     Running   40               9d
+techcommerce-staging    product-api-688fb87dcd-dt4dd                                1/1     Running   133 (37m ago)    14d
+techcommerce-staging    product-api-688fb87dcd-slhhh                                1/1     Running   38 (37m ago)     9d
+
+NAME       STATUS   ROLES           AGE   VERSION
+minikube   Ready    control-plane   52d   v1.34.0
+
+==== Part 3: Attempt to get secrets (expected: Forbidden) ====
+Error from server (Forbidden): secrets is forbidden: User "system:serviceaccount:default:log-collector" cannot list resource "secrets" in API group "" at the cluster scope
+command terminated with exit code 1
+
+==== Cleanup Part 3 pod ====
+pod "log-collector-test-pod" deleted from default namespace
+

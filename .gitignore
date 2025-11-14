@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+*.swp
+
+# Test outputs - keep for grading
+# test-outputs/
+
+# IDE
+.vscode/
+.idea/

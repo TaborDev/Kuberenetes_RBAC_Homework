@@ -1,0 +1,30 @@
+==== Part 2: Monitoring namespace resources ====
+namespace/monitoring unchanged
+serviceaccount/monitoring-reader unchanged
+role.rbac.authorization.k8s.io/monitoring-read-role unchanged
+rolebinding.rbac.authorization.k8s.io/monitoring-read-binding unchanged
+pod/monitoring-test-pod unchanged
+pod/monitoring-test-pod condition met
+
+==== Part 2: Inside monitoring test pod: list pods and deployments (expected: allowed) ====
+NAME                                                    READY   STATUS    RESTARTS        AGE
+alertmanager-kps-kube-prometheus-stack-alertmanager-0   2/2     Running   5 (36m ago)     9d
+kps-grafana-5d4c9f86bc-4qkvl                            3/3     Running   4 (36m ago)     9d
+kps-kube-prometheus-stack-operator-789b6b66dd-cqfw8     1/1     Running   104 (36m ago)   9d
+kps-kube-state-metrics-7ddb65b7bc-rzc7v                 1/1     Running   91 (36m ago)    9d
+kps-prometheus-node-exporter-8snrm                      0/1     Pending   0               32d
+monitoring-test-pod                                     1/1     Running   0               66s
+prometheus-kps-kube-prometheus-stack-prometheus-0       2/2     Running   20 (36m ago)    9d
+
+NAME                                 READY   UP-TO-DATE   AVAILABLE   AGE
+kps-grafana                          1/1     1            1           32d
+kps-kube-prometheus-stack-operator   1/1     1            1           32d
+kps-kube-state-metrics               1/1     1            1           32d
+
+==== Part 2: Attempt to delete a pod as monitoring-reader (expected: Forbidden) ====
+Error from server (Forbidden): pods "monitoring-test-pod" is forbidden: User "system:serviceaccount:monitoring:monitoring-reader" cannot delete resource "pods" in API group "" in the namespace "monitoring"
+command terminated with exit code 1
+
+==== Cleanup Part 2 resources ====
+pod "monitoring-test-pod" deleted from monitoring namespace
+

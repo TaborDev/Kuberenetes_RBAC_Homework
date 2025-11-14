@@ -1,0 +1,26 @@
+==== Part 1: Default service account - list and describe ====
+NAME            SECRETS   AGE
+automation-sa   0         32m
+default         0         52d
+log-collector   0         33m
+
+Name:                default
+Namespace:           default
+Labels:              <none>
+Annotations:         <none>
+Image pull secrets:  <none>
+Mountable secrets:   <none>
+Tokens:              <none>
+Events:              <none>
+
+==== Part 1: Create test pod using default SA ====
+pod/test-pod-default-sa created
+pod/test-pod-default-sa condition met
+
+==== Part 1: Inside pod: kubectl get pods (expected: Forbidden) ====
+Error from server (Forbidden): pods is forbidden: User "system:serviceaccount:default:default" cannot list resource "pods" in API group "" in the namespace "default"
+command terminated with exit code 1
+
+==== Cleanup Part 1 pod ====
+pod "test-pod-default-sa" deleted from default namespace
+

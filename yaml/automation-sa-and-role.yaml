@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: automation-sa
+  namespace: default
+
+---
+# ClusterRole allowing create/delete of Pods (be careful: admission policy will restrict by label)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: automation-pod-manager
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  # include 'get' and 'list' so tools like `kubectl apply` (which does a GET first)
+  # can work when testing as this service account. The admission policy (Gatekeeper)
+  # will still enforce label constraints for create/delete operations.
+  verbs: ["get","list","create","delete"]
+
+---
+# Bind the cluster role to the service account
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: automation-pod-manager-binding
+subjects:
+- kind: ServiceAccount
+  name: automation-sa
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: automation-pod-manager
+  apiGroup: rbac.authorization.k8s.io

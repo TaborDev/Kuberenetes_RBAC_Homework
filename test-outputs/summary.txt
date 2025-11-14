@@ -1,0 +1,24 @@
+==== Part 1: Default service account - list and describe ====
+==== Part 1: Create test pod using default SA ====
+==== Part 1: Inside pod: kubectl get pods (expected: Forbidden) ====
+==== Cleanup Part 1 pod ====
+pod "test-pod-default-sa" deleted from default namespace
+==== Part 2: Monitoring namespace resources ====
+==== Part 2: Inside monitoring test pod: list pods and deployments (expected: allowed) ====
+==== Part 2: Attempt to delete a pod as monitoring-reader (expected: Forbidden) ====
+==== Cleanup Part 2 resources ====
+pod "monitoring-test-pod" deleted from monitoring namespace
+==== Part 3: Log collector cluster-wide read ====
+==== Part 3: Inside log-collector pod: list pods across ns and list nodes (expected: allowed) ====
+==== Part 3: Attempt to get secrets (expected: Forbidden) ====
+==== Cleanup Part 3 pod ====
+pod "log-collector-test-pod" deleted from default namespace
+==== Part 4: Troubleshooting file exists ====
+==== Part 5: Gatekeeper (label enforcement) and automation SA testing ====
+Applying Gatekeeper ConstraintTemplate and Constraint (may fail if Gatekeeper not installed)
+==== Try creating pod without label as automation-sa (expected: denied by Gatekeeper if installed) ====
+==== Try creating pod with label as automation-sa (expected: allowed) ====
+==== Cleanup Part 5 test pods ====
+pod "pod-no-label" deleted from default namespace
+pod "pod-with-label" deleted from default namespace
+==== Done. Outputs saved to /Users/taweraradomkidanu/kubernetes-rbac-homework/test-outputs ====

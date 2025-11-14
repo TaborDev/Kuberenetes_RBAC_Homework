@@ -1,0 +1,10 @@
+apiVersion: constraints.gatekeeper.sh/v1
+kind: K8sRequiredLabels
+metadata:
+  name: pods-must-have-managed-by-automation
+spec:
+  match:
+    kinds:
+    - apiGroups: [""]
+      kinds: ["Pod"]
+  parameters: {}
