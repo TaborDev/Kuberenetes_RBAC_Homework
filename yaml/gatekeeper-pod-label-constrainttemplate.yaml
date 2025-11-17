@@ -8,17 +8,14 @@ spec:
       names:
         kind: K8sRequiredLabels
   targets:
-  - target: admission.k8s.gatekeeper.sh
-    rego: |
-      package k8srequiredlabels
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8srequiredlabels
 
-      violation[{
-        "msg": msg,
-        "details": {"missing": missing}
-      }] {
-        input.review.object.kind == "Pod"
-        required := {"managed-by":"automation"}
-        missing := {k: v | required[k] != input.review.object.metadata.labels[k]}
-        count(missing) > 0
-        msg := sprintf("Pod must have label managed-by=%v", [required["managed-by"]])
-      }
+        violation[{"msg": msg}] {
+          input.review.object.kind == "Pod"
+          required := "automation"
+          provided := object.get(input.review.object.metadata.labels, "managed-by", "")
+          provided != required
+          msg := sprintf("Pod must have label managed-by=%v", [required])
+        }

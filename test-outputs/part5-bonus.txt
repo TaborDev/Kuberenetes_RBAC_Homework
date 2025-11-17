@@ -1,0 +1,97 @@
+====================================
+Part 5 BONUS CHALLENGE TEST RESULTS
+====================================
+
+Task: Create a service account that can create/delete Pods, but ONLY if those pods have label managed-by: automation
+
+Solution: Use OPA Gatekeeper admission controller to enforce label-based constraints (RBAC alone cannot express conditional permissions based on resource labels)
+
+== Step 1: Gatekeeper Installation ==
+$ kubectl get pods -n gatekeeper-system
+NAME                                             READY   STATUS    RESTARTS      AGE
+gatekeeper-audit-d68d5985c-sp5qx                 1/1     Running   2 (23m ago)   28m
+gatekeeper-controller-manager-6587c95f95-4jmfs   1/1     Running   0             28m
+gatekeeper-controller-manager-6587c95f95-79wgx   1/1     Running   0             28m
+gatekeeper-controller-manager-6587c95f95-gkw74   1/1     Running   0             28m
+
+✅ Gatekeeper is running with 3 controller managers and 1 audit pod
+
+== Step 2: ConstraintTemplate Application ==
+$ kubectl apply -f yaml/gatekeeper-pod-label-constrainttemplate.yaml
+constrainttemplate.templates.gatekeeper.sh/k8srequiredlabels configured
+
+The ConstraintTemplate defines Rego policy that checks:
+  - If resource is a Pod
+  - If it has label managed-by=automation
+  - If not, violation is triggered
+
+== Step 3: CRD Creation Verification ==
+$ kubectl get crd k8srequiredlabels.constraints.gatekeeper.sh
+NAME                                          CREATED AT
+k8srequiredlabels.constraints.gatekeeper.sh   2025-11-17T14:08:20Z
+
+✅ Gatekeeper automatically created the CRD from the ConstraintTemplate
+
+== Step 4: Constraint Application ==
+$ kubectl apply -f yaml/gatekeeper-pod-label-constraint.yaml
+k8srequiredlabels.constraints.gatekeeper.sh/pods-must-have-managed-by-automation created
+
+The Constraint activates the policy enforcement cluster-wide for all Pods
+
+== Step 5: Test 1 - Pod WITHOUT Required Label (Expected: DENIED) ==
+$ kubectl run test-pod-no-label-2 --image=busybox --command -- sleep 3600
+Error from server (Forbidden): admission webhook "validation.gatekeeper.sh" denied the request: [pods-must-have-managed-by-automation] Pod must have label managed-by=automation
+
+✅ SUCCESS: Pod creation was DENIED by Gatekeeper because it lacks the required label
+
+== Step 6: Test 2 - Pod WITH Required Label (Expected: ALLOWED) ==
+$ kubectl apply -f /tmp/test-pod-with-label.yaml
+pod/test-with-label created
+
+$ kubectl get pod test-with-label --show-labels
+NAME              READY   STATUS    RESTARTS   AGE   LABELS
+test-with-label   1/1     Running   0          9s    managed-by=automation
+
+✅ SUCCESS: Pod creation was ALLOWED because it has the required label managed-by=automation
+
+== Step 7: RBAC Verification ==
+The automation-sa service account has these permissions:
+$ kubectl get clusterrole automation-pod-manager -o yaml | grep -A 10 rules
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+
+Note: get and list are required for kubectl apply to work (it checks existing resources)
+
+====================================
+BONUS CHALLENGE RESULTS
+====================================
+
+✅ PASSED: Label-based admission policy successfully enforces the constraint
+✅ PASSED: Pods WITHOUT managed-by=automation are DENIED
+✅ PASSED: Pods WITH managed-by=automation are ALLOWED
+✅ PASSED: Documented approach using OPA Gatekeeper
+
+Key Implementation Files:
+1. yaml/automation-sa-and-role.yaml - ServiceAccount + ClusterRole + ClusterRoleBinding
+2. yaml/gatekeeper-pod-label-constrainttemplate.yaml - Rego policy definition
+3. yaml/gatekeeper-pod-label-constraint.yaml - Policy activation
+
+Why Gatekeeper instead of RBAC?
+- RBAC controls WHO can perform WHAT action on WHICH resource type
+- RBAC cannot express conditions like "only if resource has label X"
+- Admission controllers (like Gatekeeper) inspect resource content BEFORE creation
+- Gatekeeper uses Rego (Open Policy Agent language) to define rich policies
+
+This demonstrates advanced Kubernetes security: combining RBAC (identity & permissions) with admission policies (content validation).
+
+====================================
+END OF BONUS CHALLENGE TESTING
+====================================
