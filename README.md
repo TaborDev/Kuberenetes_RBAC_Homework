@@ -253,17 +253,6 @@ All tests passed successfully. Key findings:
 
 Full command outputs available in `test-outputs/part1.txt` through `part5.txt`.
 
----
-
-## Submission Checklist
-
-- [x] All YAML manifests in `yaml/` folder
-- [x] Troubleshooting documentation (`docs/troubleshooting-part4.md`)
-- [x] Real-world design document (`docs/part5-design.md`)
-- [x] Test outputs in `test-outputs/` folder
-- [x] README with explanations and testing steps
-- [x] Automated test script (`scripts/run-tests.sh`)
-
 ## Notes
 
 - **Minikube users:** Run `minikube start` before executing tests
